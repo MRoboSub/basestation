@@ -10,3 +10,5 @@ RUN apt-get update && \
 WORKDIR /ros_ws
 
 RUN echo "source /opt/ros/humble/setup.bash" >> ~/.bashrc
+
+CMD ["bash"]

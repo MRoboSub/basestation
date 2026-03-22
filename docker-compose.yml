@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    container_name: basestation_container
     privileged: true
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix

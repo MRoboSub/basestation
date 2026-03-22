@@ -1,0 +1,16 @@
+services:
+  basestation:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    privileged: true
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./ros_ws:/ros_ws
+    environment:
+      - DISPLAY=${DISPLAY}
+    tty: true
+    stdin_open: true
+    network_mode: host
+    devices:
+      - /dev/input/js0:/dev/input/js0

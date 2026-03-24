@@ -1,0 +1,28 @@
+#!/bin/bash
+# 1. Identify local interfaces
+ethint=$(ls /sys/class/net | grep -i enp)
+wanint=$(ls /sys/class/net | grep -i wlp)
+
+echo "Ethernet: $ethint | Wi-Fi: $wanint"
+
+# 2. Enable kernel forwarding
+sudo sysctl -w net.ipv4.ip_forward=1
+
+# 3. Set a static ip for the gateway
+sudo ip addr flush dev $ethint
+sudo ip addr add 192.168.2.1/24 dev $ethint
+sudo ip link set $ethint up
+
+# 4. Clear old rules to prevent duplicates on successive runs of this script
+sudo iptables -F
+sudo iptables -t nat -F
+
+# 5. NAT / Masquerade
+# Rewrite the Jetson's internal IP address (192.168.2.x) to this 
+# computer's public IP as it exits via Wi-Fi, allowing the internet to 
+# talk back to it
+sudo iptables -t nat -A POSTROUTING -o $wanint -j MASQUERADE
+
+# 6. Allow forwarding (outbound and inbound for established connections)
+sudo iptables -A FORWARD -i $ethint -o $wanint -j ACCEPT
+sudo iptables -A FORWARD -i $wanint -o $ethint -m state --state RELATED,ESTABLISHED -j ACCEPT
